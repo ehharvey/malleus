@@ -1,11 +1,21 @@
 package inventory
 
-import "context"
+import (
+	"context"
+
+	"github.com/ehharvey/malleus/internal/outcome"
+)
 
 type Repository interface {
 	// Domain
-	CreateDomain(context context.Context, input *CreateDomainParams) (*Domain, error)
-	GetDomainByName(context context.Context, input string) (*Domain, error)
+	CreateDomain(
+		context context.Context,
+		input CreateDomainParams,
+	) (*Domain, outcome.DbResult)
+	GetDomainByName(
+		context context.Context,
+		input string,
+	) (*Domain, outcome.DbResult)
 	// ListDomains(input ListPaginationParams)
 
 	// // Network

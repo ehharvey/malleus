@@ -1,4 +1,4 @@
-package validation
+package outcome
 
 type ValidationDetailLevel int
 

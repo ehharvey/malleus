@@ -3,11 +3,11 @@ package inventory
 import (
 	"regexp"
 
-	"github.com/ehharvey/malleus/internal/validation"
+	"github.com/ehharvey/malleus/internal/outcome"
 )
 
 // initialize check functions here!
-var createDomainModelCheckFunctions = [...]validation.ModelValidationFunction[*CreateDomainParams]{
+var createDomainModelCheckFunctions = [...]outcome.ModelValidationFunction[CreateDomainParams]{
 	checkValidDomainNameFormat,
 	checkValidDomainNameLength,
 }
@@ -21,10 +21,10 @@ var checkValidDomainNameFormatMessages = map[bool]string{
 	false: "domain has incorrect format",
 }
 
-func checkValidDomainNameFormat(createDomainParams *CreateDomainParams) validation.ModelValidationCheckResult {
+func checkValidDomainNameFormat(createDomainParams CreateDomainParams) outcome.ModelValidationCheckResult {
 	check := domainRegex.MatchString(createDomainParams.Name)
 
-	return validation.ModelValidationCheckResult{
+	return outcome.ModelValidationCheckResult{
 		Name:      "checkValidDomainNameFormat",
 		Succeeded: check,
 		Field:     "Name",
@@ -49,7 +49,7 @@ var checkValidDomainNameLengthMessages = map[checkValidDomainNameLengthResultCod
 	checkValidDomainNameLengthCorrectLength: "check passed",
 }
 
-func checkValidDomainNameLength(createDomainParams *CreateDomainParams) validation.ModelValidationCheckResult {
+func checkValidDomainNameLength(createDomainParams CreateDomainParams) outcome.ModelValidationCheckResult {
 	check_long := len(createDomainParams.Name) > 253
 	check_short := len(createDomainParams.Name) <= 0
 	var check_code checkValidDomainNameLengthResultCode = checkValidDomainNameLengthInvalidResult
@@ -62,7 +62,7 @@ func checkValidDomainNameLength(createDomainParams *CreateDomainParams) validati
 		check_code = checkValidDomainNameLengthCorrectLength
 	}
 
-	return validation.ModelValidationCheckResult{
+	return outcome.ModelValidationCheckResult{
 		Name:      "checkValidDomainNameLength",
 		Succeeded: check_code == checkValidDomainNameLengthCorrectLength,
 		Field:     "Name",

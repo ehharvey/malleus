@@ -1,0 +1,12 @@
+type Domain {
+    id: ID!
+    name: String!
+}
+
+input NewDomain {
+    name: String!
+}
+
+type Mutation {
+    createDomain(input: NewDomain!): Domain!
+}

@@ -1,4 +1,4 @@
-package validation
+package outcome
 
 import (
 	"fmt"
@@ -35,12 +35,10 @@ func TestValidateModelReportOnlyFailures(t *testing.T) {
 	}
 
 	expected := ModelValidationResult{
-		Model: "TestValidateModelReportOnlyFailures",
 		Tests: expectedTests,
 	}
 
 	actual := ValidateModel(5,
-		"TestValidateModelReportOnlyFailures",
 		ValidationReturnOnlyFailures,
 		validateFunctions,
 	)
@@ -70,12 +68,10 @@ func TestValidateModelReportAll(t *testing.T) {
 	}
 
 	expected := ModelValidationResult{
-		Model: "TestValidateModelReportAll",
 		Tests: expectedTests,
 	}
 
 	actual := ValidateModel[int](5,
-		"TestValidateModelReportAll",
 		ValidationReturnAllResults,
 		validateFunctions,
 	)
@@ -99,7 +95,6 @@ func TestModelValidationResultSucceededFalse(t *testing.T) {
 	}
 
 	arrange := ModelValidationResult{
-		Model: "TestModelValidationResultSucceeded",
 		Tests: arrangeCheckResults,
 	}
 
@@ -126,7 +121,6 @@ func TestModelValidationResultSucceededTrue(t *testing.T) {
 	}
 
 	arrange := ModelValidationResult{
-		Model: "TestModelValidationResultSucceeded",
 		Tests: arrangeCheckResults,
 	}
 

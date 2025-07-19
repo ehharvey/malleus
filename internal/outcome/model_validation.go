@@ -1,11 +1,10 @@
-package validation
+package outcome
 
 import "fmt"
 
 type ModelValidationFunction[T any] func(input T) ModelValidationCheckResult
 
 type ModelValidationResult struct {
-	Model string
 	Tests []ModelValidationCheckResult
 }
 
@@ -36,11 +35,10 @@ func (ve *ModelValidationCheckResult) Error() string {
 
 func ValidateModel[T any](
 	input T,
-	name string,
 	validationDetailLevel ValidationDetailLevel,
 	testFunctions []ModelValidationFunction[T],
 ) ModelValidationResult {
-	var checkResults []ModelValidationCheckResult
+	checkResults := []ModelValidationCheckResult{}
 
 	for _, tf := range testFunctions {
 		test_result := tf(input)
@@ -50,7 +48,6 @@ func ValidateModel[T any](
 	}
 
 	return ModelValidationResult{
-		Model: name,
 		Tests: checkResults,
 	}
 }

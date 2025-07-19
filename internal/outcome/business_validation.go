@@ -1,27 +1,29 @@
-package validation
+package outcome
 
 import (
 	"context"
 	"fmt"
 )
 
-type ServiceValidationFunction[T any, R any] func(context context.Context, input T, repository R) ServiceValidationTest
+type BusinessValidationFunction[T any, R any] func(
+	context context.Context,
+	input T,
+	repository R,
+) BusinessValidationTest
 
-type ServiceValidationResult struct {
-	Service string
-	Tests   []ServiceValidationTest
+type BusinessValidationResult struct {
+	Tests []BusinessValidationTest
 }
 
-type ServiceValidationTest struct {
+type BusinessValidationTest struct {
 	Succeeded bool
-	Name      string
 	Code      string
 	Field     string
 	Message   string
-	DbError   error
+	DbResult  DbResult
 }
 
-func (se *ServiceValidationResult) Succeded() bool {
+func (se *BusinessValidationResult) Succeded() bool {
 	for _, te := range se.Tests {
 		if !te.Succeeded {
 			return false
@@ -31,22 +33,21 @@ func (se *ServiceValidationResult) Succeded() bool {
 	return true
 }
 
-func (se *ServiceValidationTest) Error() string {
+func (se *BusinessValidationTest) Error() string {
 	return fmt.Sprintf(
 		"service validation failed, Code %s, Field  %s, Message %s",
 		se.Code, se.Field, se.Message,
 	)
 }
 
-func ValidateService[T any, R any](
+func ValidateBusinessRules[T any, R any](
 	context context.Context,
 	input T,
-	name string,
 	repository R,
 	validationDetailLevel ValidationDetailLevel,
-	testFunctions []ServiceValidationFunction[T, R],
-) ServiceValidationResult {
-	var results []ServiceValidationTest
+	testFunctions []BusinessValidationFunction[T, R],
+) BusinessValidationResult {
+	results := []BusinessValidationTest{}
 
 	for _, tf := range testFunctions {
 		test_result := tf(context, input, repository)
@@ -57,8 +58,7 @@ func ValidateService[T any, R any](
 		}
 	}
 
-	return ServiceValidationResult{
-		Service: name,
-		Tests:   results,
+	return BusinessValidationResult{
+		Tests: results,
 	}
 }

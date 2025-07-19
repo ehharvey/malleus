@@ -7,20 +7,7 @@ package generated
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
-
-const insertManyNodes = `-- name: InsertManyNodes :exec
-INSERT INTO nodes (domain_id) VALUES (
-    unnest($1::text[])
-) RETURNING id, domain_id
-`
-
-func (q *Queries) InsertManyNodes(ctx context.Context, aArray []string) error {
-	_, err := q.db.Exec(ctx, insertManyNodes, aArray)
-	return err
-}
 
 const insertOneDomain = `-- name: InsertOneDomain :one
 
@@ -37,53 +24,6 @@ func (q *Queries) InsertOneDomain(ctx context.Context, name string) (Domain, err
 	var i Domain
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
-}
-
-const insertOneNode = `-- name: InsertOneNode :one
-
-INSERT INTO nodes (domain_id) VALUES
-($1)
-RETURNING id, domain_id
-`
-
-// NODES --------------------------------------
-func (q *Queries) InsertOneNode(ctx context.Context, domainID pgtype.UUID) (Node, error) {
-	row := q.db.QueryRow(ctx, insertOneNode, domainID)
-	var i Node
-	err := row.Scan(&i.ID, &i.DomainID)
-	return i, err
-}
-
-const selectManyNodesWithPagination = `-- name: SelectManyNodesWithPagination :many
-SELECT id, domain_id FROM nodes
-WHERE id > $1 
-ORDER BY id ASC
-LIMIT $2
-`
-
-type SelectManyNodesWithPaginationParams struct {
-	ID    pgtype.UUID
-	Limit int32
-}
-
-func (q *Queries) SelectManyNodesWithPagination(ctx context.Context, arg SelectManyNodesWithPaginationParams) ([]Node, error) {
-	rows, err := q.db.Query(ctx, selectManyNodesWithPagination, arg.ID, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Node
-	for rows.Next() {
-		var i Node
-		if err := rows.Scan(&i.ID, &i.DomainID); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const selectOneDomainByName = `-- name: SelectOneDomainByName :one

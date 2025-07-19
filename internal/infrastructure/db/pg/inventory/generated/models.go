@@ -5,47 +5,10 @@
 package generated
 
 import (
-	"net"
-	"net/netip"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Domain struct {
 	ID   pgtype.UUID
 	Name string
-}
-
-type Network struct {
-	ID   pgtype.UUID
-	Addr *netip.Prefix
-}
-
-type NetworkBridge struct {
-	ID pgtype.UUID
-}
-
-type NetworkInterface struct {
-	ID                     pgtype.UUID
-	NodeID                 pgtype.UUID
-	NetworkInterfaceTypeID pgtype.UUID
-	NetworkBridgeID        pgtype.UUID
-	Mac                    net.HardwareAddr
-}
-
-type NetworkInterfaceType struct {
-	ID   pgtype.UUID
-	Name string
-}
-
-type NetworkIp struct {
-	ID                 pgtype.UUID
-	Addr               *netip.Addr
-	NetworkID          pgtype.UUID
-	NetworkInterfaceID pgtype.UUID
-}
-
-type Node struct {
-	ID       pgtype.UUID
-	DomainID pgtype.UUID
 }

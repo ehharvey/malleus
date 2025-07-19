@@ -1,4 +1,4 @@
-package validation
+package outcome
 
 import (
 	"context"
@@ -7,10 +7,9 @@ import (
 	"testing"
 )
 
-func TestServiceValidationResultSucceededFalse(t *testing.T) {
-	arrange := ServiceValidationResult{
-		Service: "TestServiceValidationResultSuceededFalse",
-		Tests: []ServiceValidationTest{
+func TestBusinessValidationResultSucceededFalse(t *testing.T) {
+	arrange := BusinessValidationResult{
+		Tests: []BusinessValidationTest{
 			{
 				Succeeded: false,
 			},
@@ -26,10 +25,9 @@ func TestServiceValidationResultSucceededFalse(t *testing.T) {
 	}
 }
 
-func TestServiceValidationResultSucceededTrue(t *testing.T) {
-	arrange := ServiceValidationResult{
-		Service: "TestServiceValidationResultSuceededFalse",
-		Tests: []ServiceValidationTest{
+func TestBusinessValidationResultSucceededTrue(t *testing.T) {
+	arrange := BusinessValidationResult{
+		Tests: []BusinessValidationTest{
 			{
 				Succeeded: true,
 			},
@@ -46,9 +44,8 @@ func TestServiceValidationResultSucceededTrue(t *testing.T) {
 }
 
 func TestServiceValidationResultSucceededTrueEmpty(t *testing.T) {
-	arrange := ServiceValidationResult{
-		Service: "TestServiceValidationResultSuceededFalse",
-		Tests:   []ServiceValidationTest{},
+	arrange := BusinessValidationResult{
+		Tests: []BusinessValidationTest{},
 	}
 
 	expected := true
@@ -60,8 +57,8 @@ func TestServiceValidationResultSucceededTrueEmpty(t *testing.T) {
 	}
 }
 
-func TestServiceValidationTestError(t *testing.T) {
-	arrange := ServiceValidationTest{
+func TestBusinessValidationTestError(t *testing.T) {
+	arrange := BusinessValidationTest{
 		Code:    "foo",
 		Field:   "bar",
 		Message: "baz",
@@ -79,28 +76,27 @@ func TestServiceValidationTestError(t *testing.T) {
 	}
 }
 
-func stubTestFunctionFailAlways(context context.Context, _ int, _ struct{}) ServiceValidationTest {
-	return ServiceValidationTest{
+func stubTestFunctionFailAlways(context context.Context, _ int, _ struct{}) BusinessValidationTest {
+	return BusinessValidationTest{
 		Succeeded: false,
 	}
 }
 
-func stubTestFunctionFailNever(context context.Context, _ int, _ struct{}) ServiceValidationTest {
-	return ServiceValidationTest{
+func stubTestFunctionFailNever(context context.Context, _ int, _ struct{}) BusinessValidationTest {
+	return BusinessValidationTest{
 		Succeeded: true,
 	}
 }
 
 func TestValidateServiceReturnFailureOnly(t *testing.T) {
-	arrangeTestFuncs := [...]ServiceValidationFunction[int, struct{}]{
+	arrangeTestFuncs := [...]BusinessValidationFunction[int, struct{}]{
 		stubTestFunctionFailAlways,
 		stubTestFunctionFailNever,
 		stubTestFunctionFailAlways,
 	}
 
-	expected := ServiceValidationResult{
-		Service: "TestValidateServiceReturnFailureOnly",
-		Tests: []ServiceValidationTest{
+	expected := BusinessValidationResult{
+		Tests: []BusinessValidationTest{
 			{
 				Succeeded: false,
 			},
@@ -110,10 +106,9 @@ func TestValidateServiceReturnFailureOnly(t *testing.T) {
 		},
 	}
 
-	actual := ValidateService(
+	actual := ValidateBusinessRules(
 		t.Context(),
 		3,
-		"TestValidateServiceReturnFailureOnly",
 		struct{}{},
 		ValidationDetailLevel(ValidationReturnOnlyFailures),
 		arrangeTestFuncs[:],
@@ -124,16 +119,15 @@ func TestValidateServiceReturnFailureOnly(t *testing.T) {
 	}
 }
 
-func TestValidateServiceReturnAll(t *testing.T) {
-	arrangeTestFuncs := [...]ServiceValidationFunction[int, struct{}]{
+func TestValidateBusinessReturnAll(t *testing.T) {
+	arrangeTestFuncs := [...]BusinessValidationFunction[int, struct{}]{
 		stubTestFunctionFailAlways,
 		stubTestFunctionFailNever,
 		stubTestFunctionFailAlways,
 	}
 
-	expected := ServiceValidationResult{
-		Service: "TestValidateServiceReturnAll",
-		Tests: []ServiceValidationTest{
+	expected := BusinessValidationResult{
+		Tests: []BusinessValidationTest{
 			{
 				Succeeded: false,
 			},
@@ -146,10 +140,9 @@ func TestValidateServiceReturnAll(t *testing.T) {
 		},
 	}
 
-	actual := ValidateService(
+	actual := ValidateBusinessRules(
 		t.Context(),
 		3,
-		"TestValidateServiceReturnAll",
 		struct{}{},
 		ValidationDetailLevel(ValidationReturnAllResults),
 		arrangeTestFuncs[:],

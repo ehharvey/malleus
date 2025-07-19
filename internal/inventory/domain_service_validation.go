@@ -4,30 +4,33 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ehharvey/malleus/internal/validation"
+	"github.com/ehharvey/malleus/internal/outcome"
 )
 
 // initialize check function arrays here!
-var createDomainServiceCheckFunctions = [...]validation.ServiceValidationFunction[*CreateDomainParams, Repository]{
+var createDomainServiceCheckFunctions = [...]outcome.BusinessValidationFunction[CreateDomainParams, Repository]{
 	checkDomainUniqueness,
 }
 
 // --
 
-func checkDomainUniqueness(context context.Context, input *CreateDomainParams, repository Repository) validation.ServiceValidationTest {
+func checkDomainUniqueness(
+	context context.Context,
+	input CreateDomainParams,
+	repository Repository,
+) outcome.BusinessValidationTest {
 	// Check if domain already exists with this name
-	check_domain, checK_err := repository.GetDomainByName(context, input.Name)
+	domain, dbResult := repository.GetDomainByName(context, input.Name)
 
-	result := validation.ServiceValidationTest{
-		Name:      "checkDomainUniqueness",
+	result := outcome.BusinessValidationTest{
 		Succeeded: false,
 		Field:     "Name",
+		DbResult:  dbResult,
 	}
 
-	if checK_err != nil {
+	if !result.DbResult.Succeded {
 		result.Code = "DbError"
-		result.DbError = checK_err
-	} else if check_domain != nil {
+	} else if domain != nil {
 		result.Code = "NotUnique"
 		result.Message = fmt.Sprintf("domain %s already exists", input.Name)
 	} else {

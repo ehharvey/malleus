@@ -10,20 +10,20 @@ INSERT INTO domains (name) VALUES
 -- name: SelectOneDomainByName :one
 SELECT * FROM domains WHERE name = $1 LIMIT 1;
 
--- NODES --------------------------------------
+-- -- NODES --------------------------------------
 
--- name: InsertOneNode :one
-INSERT INTO nodes (domain_id) VALUES
-($1)
-RETURNING *;
+-- -- name: InsertOneNode :one
+-- INSERT INTO nodes (domain_id) VALUES
+-- ($1)
+-- RETURNING *;
 
--- name: InsertManyNodes :exec
-INSERT INTO nodes (domain_id) VALUES (
-    unnest(@a_array::text[])
-) RETURNING *;
+-- -- name: InsertManyNodes :exec
+-- INSERT INTO nodes (domain_id) VALUES (
+--     unnest(@a_array::text[])
+-- ) RETURNING *;
 
--- name: SelectManyNodesWithPagination :many
-SELECT * FROM nodes
-WHERE id > $1 
-ORDER BY id ASC
-LIMIT $2;
+-- -- name: SelectManyNodesWithPagination :many
+-- SELECT * FROM nodes
+-- WHERE id > $1 
+-- ORDER BY id ASC
+-- LIMIT $2;

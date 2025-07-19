@@ -4,14 +4,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ehharvey/malleus/internal/validation"
+	"github.com/ehharvey/malleus/internal/outcome"
 )
 
-var sucessfulModelValidationCheckResult = validation.ModelValidationCheckResult{
+var sucessfulModelValidationCheckResult = outcome.ModelValidationCheckResult{
 	Succeeded: true,
 }
 
-var failedModelValidationCheckResult = validation.ModelValidationCheckResult{
+var failedModelValidationCheckResult = outcome.ModelValidationCheckResult{
 	Succeeded: false,
 }
 
@@ -19,7 +19,7 @@ func TestCheckValidDomainNameFormat(t *testing.T) {
 	tests := []struct {
 		name     string
 		arrange  CreateDomainParams
-		expected validation.ModelValidationCheckResult
+		expected outcome.ModelValidationCheckResult
 	}{
 		{"Example_com", CreateDomainParams{Name: "example.com"}, sucessfulModelValidationCheckResult},
 		{"Invalid format", CreateDomainParams{Name: "-asdf.com"}, failedModelValidationCheckResult},
@@ -27,7 +27,7 @@ func TestCheckValidDomainNameFormat(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := checkValidDomainNameFormat(&tt.arrange)
+			actual := checkValidDomainNameFormat(tt.arrange)
 
 			if tt.expected.Succeeded != actual.Succeeded {
 				t.Errorf("isValidDomainNameFormat(%s) = %t; want %t", tt.arrange, actual.Succeeded, tt.expected.Succeeded)
@@ -40,7 +40,7 @@ func TestIsValidDomainNameLength(t *testing.T) {
 	tests := []struct {
 		name     string
 		arrange  CreateDomainParams
-		expected validation.ModelValidationCheckResult
+		expected outcome.ModelValidationCheckResult
 	}{
 		{"Correct length", CreateDomainParams{Name: "example.com"}, sucessfulModelValidationCheckResult},
 		{"Too long", CreateDomainParams{Name: strings.Repeat("example.com", 300)}, failedModelValidationCheckResult},
@@ -49,7 +49,7 @@ func TestIsValidDomainNameLength(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := checkValidDomainNameLength(&tt.arrange)
+			actual := checkValidDomainNameLength(tt.arrange)
 
 			if tt.expected.Succeeded != actual.Succeeded {
 				t.Errorf("isValidDomainNameLength(%s) = %t; want %t", tt.arrange, actual.Succeeded, tt.expected.Succeeded)

@@ -3,31 +3,30 @@ package inventory
 import (
 	"context"
 
-	"github.com/ehharvey/malleus/internal/service"
-	"github.com/ehharvey/malleus/internal/validation"
+	"github.com/ehharvey/malleus/internal/outcome"
 )
 
 func (s *Service) CreateDomain(
 	context context.Context,
-	input *CreateDomainParams,
-	validationDetailLevel validation.ValidationDetailLevel,
-) service.ServiceResult[Domain] {
-	result := service.ServiceResult[Domain]{}
+	input CreateDomainParams,
+	validationDetailLevel outcome.ValidationDetailLevel,
+) outcome.ServiceResult[Domain] {
+	result := outcome.ServiceResult[Domain]{
+		Model: "Domain",
+	}
 
 	// Domain checks
-	result.ModelValidationResult = validation.ValidateModel(
+	result.ModelValidationResult = outcome.ValidateModel(
 		input,
-		"Domain",
 		validationDetailLevel,
 		createDomainModelCheckFunctions[:],
 	)
 
 	// Service checks
 	if result.ModelValidationResult.Succeeded() {
-		result.ServiceValidationResult = validation.ValidateService(
+		result.ServiceValidationResult = outcome.ValidateBusinessRules(
 			context,
 			input,
-			"Domain",
 			s.Repository,
 			validationDetailLevel,
 			createDomainServiceCheckFunctions[:],
@@ -36,15 +35,15 @@ func (s *Service) CreateDomain(
 
 	// Creation
 	if result.ModelValidationResult.Succeeded() && result.ServiceValidationResult.Succeded() {
-		create_result, create_err := s.Repository.CreateDomain(
+		createResult, dbResult := s.Repository.CreateDomain(
 			context,
 			input,
 		)
 
-		if create_err != nil {
-			result.DbError = create_err
-		} else {
-			result.Result = create_result
+		result.PersistenceResult = dbResult
+
+		if result.PersistenceResult.Succeded {
+			result.Result = createResult
 		}
 	}
 
