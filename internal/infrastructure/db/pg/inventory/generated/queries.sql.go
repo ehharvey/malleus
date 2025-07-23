@@ -9,6 +9,19 @@ import (
 	"context"
 )
 
+const checkExistsDomainByName = `-- name: CheckExistsDomainByName :one
+SELECT EXISTS(
+    SELECT 1 FROM domains WHERE name = $1 LIMIT 1
+) AS exists
+`
+
+func (q *Queries) CheckExistsDomainByName(ctx context.Context, name string) (bool, error) {
+	row := q.db.QueryRow(ctx, checkExistsDomainByName, name)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const insertOneDomain = `-- name: InsertOneDomain :one
 
 
@@ -21,17 +34,6 @@ INSERT INTO domains (name) VALUES
 // DOMAINS ------------------------------------
 func (q *Queries) InsertOneDomain(ctx context.Context, name string) (Domain, error) {
 	row := q.db.QueryRow(ctx, insertOneDomain, name)
-	var i Domain
-	err := row.Scan(&i.ID, &i.Name)
-	return i, err
-}
-
-const selectOneDomainByName = `-- name: SelectOneDomainByName :one
-SELECT id, name FROM domains WHERE name = $1 LIMIT 1
-`
-
-func (q *Queries) SelectOneDomainByName(ctx context.Context, name string) (Domain, error) {
-	row := q.db.QueryRow(ctx, selectOneDomainByName, name)
 	var i Domain
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err

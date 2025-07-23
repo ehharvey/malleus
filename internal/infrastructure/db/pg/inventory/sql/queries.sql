@@ -7,8 +7,10 @@
 INSERT INTO domains (name) VALUES
 ($1) RETURNING *;
 
--- name: SelectOneDomainByName :one
-SELECT * FROM domains WHERE name = $1 LIMIT 1;
+-- name: CheckExistsDomainByName :one
+SELECT EXISTS(
+    SELECT 1 FROM domains WHERE name = $1 LIMIT 1
+) AS exists;
 
 -- -- NODES --------------------------------------
 

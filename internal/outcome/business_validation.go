@@ -2,6 +2,7 @@ package outcome
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
 
@@ -33,11 +34,32 @@ func (se *BusinessValidationResult) Succeded() bool {
 	return true
 }
 
-func (se *BusinessValidationTest) Error() string {
-	return fmt.Sprintf(
-		"service validation failed, Code %s, Field  %s, Message %s",
-		se.Code, se.Field, se.Message,
-	)
+func (se *BusinessValidationResult) CombineErrors() error {
+	var errs []error
+	for _, e := range se.Tests {
+		errs = append(errs, e)
+	}
+	return errors.Join(errs...)
+}
+
+func (st BusinessValidationTest) Error() string {
+	if st.Succeeded {
+		return fmt.Sprintf(
+			"service validation passed, Code %s, Field %s, Message %s",
+			st.Code, st.Field, st.Message,
+		)
+	} else if st.DbResult.Err == nil {
+		return fmt.Sprintf(
+			"service validation failed, Code %s, Field %s, Message %s",
+			st.Code, st.Field, st.Message,
+		)
+	} else {
+
+		return fmt.Errorf(
+			"service validation failed, Code %s, Field %s, Message %s: %w",
+			st.Code, st.Field, st.Message, st.DbResult,
+		).Error()
+	}
 }
 
 func ValidateBusinessRules[T any, R any](

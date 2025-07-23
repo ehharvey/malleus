@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/ehharvey/malleus/internal/outcome"
@@ -11,76 +12,73 @@ type repoMockFindUnique struct{}
 type repoMockNoUnique struct{}
 type repoMockDbError struct{}
 
-func stubCreateDomain(input CreateDomainParams) (*Domain, outcome.DbResult) {
+func stubCreateDomain(input CreateDomainParams) (Domain, outcome.DbResult) {
 	dbResult := outcome.DbResult{
 		QueryFunction: "CreateDomain",
-		Succeded:      true,
+		Err:           nil,
 	}
-	return &Domain{
+	return Domain{
 		ID:   "123",
 		Name: input.Name,
 	}, dbResult
 }
 
-func (repo repoMockNoUnique) GetDomainByName(
+func (repo repoMockNoUnique) CheckExistsDomainByName(
 	context context.Context,
 	input string,
-) (*Domain, outcome.DbResult) {
+) (bool, outcome.DbResult) {
 	dbResult := outcome.DbResult{
-		Succeded:      true,
-		QueryFunction: "GetDomainByName",
+		Err:           nil,
+		QueryFunction: "CheckExistsDomainByName",
 	}
-	return nil, dbResult
+	return false, dbResult
 }
 
 func (repo repoMockNoUnique) CreateDomain(
 	context context.Context,
 	input CreateDomainParams,
-) (*Domain, outcome.DbResult) {
+) (Domain, outcome.DbResult) {
 	return stubCreateDomain(input)
 }
 
-func (repo repoMockFindUnique) GetDomainByName(
+func (repo repoMockFindUnique) CheckExistsDomainByName(
 	context context.Context,
 	input string,
-) (*Domain, outcome.DbResult) {
+) (bool, outcome.DbResult) {
 	dbResult := outcome.DbResult{
-		QueryFunction: "GetDomainByName",
-		Succeded:      true,
+		QueryFunction: "CheckExistsDomainByName",
+		Err:           nil,
 	}
-	return &Domain{
-		ID:   "123",
-		Name: input,
-	}, dbResult
+	return true, dbResult
 }
 
 func (repo repoMockFindUnique) CreateDomain(
 	context context.Context,
 	input CreateDomainParams,
-) (*Domain, outcome.DbResult) {
+) (Domain, outcome.DbResult) {
 	return stubCreateDomain(input)
 }
 
-func (repo repoMockDbError) GetDomainByName(
+func (repo repoMockDbError) CheckExistsDomainByName(
 	context context.Context,
 	input string,
-) (*Domain, outcome.DbResult) {
+) (bool, outcome.DbResult) {
 	dbResult := outcome.DbResult{
-		QueryFunction: "GetDomainByName",
-		Succeded:      false,
+		QueryFunction: "CheckExistsDomainByName",
+		Err:           errors.New("CheckExistsDomainByNameFailed"),
 	}
-	return nil, dbResult
+	return false, dbResult
 }
 
 func (repo repoMockDbError) CreateDomain(
 	context context.Context,
 	input CreateDomainParams,
-) (*Domain, outcome.DbResult) {
+) (Domain, outcome.DbResult) {
 	dbResult := outcome.DbResult{
 		QueryFunction: "CreateDomain",
-		Succeded:      false,
+		Err:           errors.New("CreateDomainByNameFailed"),
 	}
-	return nil, dbResult
+	return Domain{}, dbResult
 }
 
 func TestCheckDomainUniqueness(t *testing.T) {

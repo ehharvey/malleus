@@ -4,13 +4,21 @@ import (
 	"context"
 
 	"github.com/ehharvey/malleus/internal/infrastructure/db/pg/inventory/generated"
+	"github.com/ehharvey/malleus/internal/infrastructure/db/pg/inventory/glue"
 	"github.com/ehharvey/malleus/internal/inventory"
 	"github.com/ehharvey/malleus/internal/outcome"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type Queries interface {
+	InsertOneDomain(ctx context.Context, name string) (generated.Domain, error)
+	CheckExistsDomainByName(ctx context.Context, name string) (bool, error)
+	WithTx(tx pgx.Tx) *generated.Queries
+}
+
 type InventoryRepository struct {
-	queries *generated.Queries
+	queries Queries
 }
 
 func NewInventoryRepository(queries *generated.Queries) InventoryRepository {
@@ -25,42 +33,26 @@ func NewInventoryQueries(pool *pgxpool.Pool) *generated.Queries {
 
 func (repo InventoryRepository) CreateDomain(
 	context context.Context,
-	input *inventory.CreateDomainParams,
-) (*inventory.Domain, outcome.DbResult) {
+	input inventory.CreateDomainParams,
+) (inventory.Domain, outcome.DbResult) {
+	insert, err := repo.queries.InsertOneDomain(context, input.Name)
 	dbResult := outcome.DbResult{
 		QueryFunction: "CreateDomain",
-		Succeded:      false,
+		Err:           err,
 	}
-	insert, err := repo.queries.InsertOneDomain(context, input.Name)
-
-	if err != nil {
-		return nil, dbResult
-	} else {
-		dbResult.Succeded = true
-		return &inventory.Domain{
-			ID:   insert.ID.String(),
-			Name: input.Name,
-		}, dbResult
-	}
+	return glue.ProcessDbDomain(insert, err), dbResult
 }
 
-func (repo InventoryRepository) GetDomainByName(
+func (repo InventoryRepository) CheckExistsDomainByName(
 	context context.Context,
-	input string,
-) (*inventory.Domain, outcome.DbResult) {
-	dbResult := outcome.DbResult{
-		QueryFunction: "GetDomainByName",
-		Succeded:      false,
-	}
-	get, err := repo.queries.SelectOneDomainByName(context, input)
+	name string,
+) (bool, outcome.DbResult) {
+	check, err := repo.queries.CheckExistsDomainByName(context, name)
 
-	if err != nil {
-		return nil, dbResult
-	} else {
-		dbResult.Succeded = true
-		return &inventory.Domain{
-			ID:   get.ID.String(),
-			Name: get.Name,
-		}, dbResult
+	dbResult := outcome.DbResult{
+		QueryFunction: "CheckExistsDomainByName",
+		Err:           err,
 	}
+
+	return check, dbResult
 }

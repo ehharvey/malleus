@@ -1,0 +1,14 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: malleus
+build:
+  artifacts:
+    - image: ehharvey/malleus-app
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - k8s/development.yaml
+    - k8s/postgresql.yaml
+    - k8s/service.yaml

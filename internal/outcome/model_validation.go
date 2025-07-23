@@ -1,6 +1,9 @@
 package outcome
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type ModelValidationFunction[T any] func(input T) ModelValidationCheckResult
 
@@ -26,7 +29,15 @@ func (ve *ModelValidationResult) Succeeded() bool {
 	return true
 }
 
-func (ve *ModelValidationCheckResult) Error() string {
+func (ve ModelValidationResult) CombineErrors() error {
+	var errs []error
+	for _, e := range ve.Tests {
+		errs = append(errs, e)
+	}
+	return errors.Join(errs...)
+}
+
+func (ve ModelValidationCheckResult) Error() string {
 	return fmt.Sprintf(
 		"model validation failed for Field %s, and Value %s. Message: %s",
 		ve.Field, ve.Value, ve.Message,

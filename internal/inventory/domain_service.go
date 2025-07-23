@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"context"
+	"log"
 
 	"github.com/ehharvey/malleus/internal/outcome"
 )
@@ -41,11 +42,10 @@ func (s *Service) CreateDomain(
 		)
 
 		result.PersistenceResult = dbResult
-
-		if result.PersistenceResult.Succeded {
-			result.Result = createResult
-		}
+		result.Result = createResult
 	}
+
+	log.Printf("%v", result)
 
 	return result
 }

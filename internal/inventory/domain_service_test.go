@@ -23,7 +23,7 @@ func TestCreateDomain(t *testing.T) {
 	}
 
 	expected := outcome.ServiceResult[Domain]{
-		Result: &expectedResult,
+		Result: expectedResult,
 		Model:  "Domain",
 		ModelValidationResult: outcome.ModelValidationResult{
 			Tests: []outcome.ModelValidationCheckResult{},
@@ -33,7 +33,7 @@ func TestCreateDomain(t *testing.T) {
 		},
 		PersistenceResult: outcome.DbResult{
 			QueryFunction: "CreateDomain",
-			Succeded:      true,
+			Err:           nil,
 		},
 	}
 

@@ -19,8 +19,8 @@ func checkDomainUniqueness(
 	input CreateDomainParams,
 	repository Repository,
 ) outcome.BusinessValidationTest {
-	// Check if domain already exists with this name
-	domain, dbResult := repository.GetDomainByName(context, input.Name)
+	// Check if check already exists with this name
+	check, dbResult := repository.CheckExistsDomainByName(context, input.Name)
 
 	result := outcome.BusinessValidationTest{
 		Succeeded: false,
@@ -28,9 +28,9 @@ func checkDomainUniqueness(
 		DbResult:  dbResult,
 	}
 
-	if !result.DbResult.Succeded {
+	if result.DbResult.Err != nil {
 		result.Code = "DbError"
-	} else if domain != nil {
+	} else if check {
 		result.Code = "NotUnique"
 		result.Message = fmt.Sprintf("domain %s already exists", input.Name)
 	} else {

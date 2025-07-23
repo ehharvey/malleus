@@ -10,3 +10,7 @@ input NewDomain {
 type Mutation {
     createDomain(input: NewDomain!): Domain!
 }
+
+type Query {
+    listDomains: [Domain!]!
+}

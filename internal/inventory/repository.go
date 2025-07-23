@@ -11,11 +11,11 @@ type Repository interface {
 	CreateDomain(
 		context context.Context,
 		input CreateDomainParams,
-	) (*Domain, outcome.DbResult)
-	GetDomainByName(
+	) (Domain, outcome.DbResult)
+	CheckExistsDomainByName(
 		context context.Context,
 		input string,
-	) (*Domain, outcome.DbResult)
+	) (bool, outcome.DbResult)
 	// ListDomains(input ListPaginationParams)
 
 	// // Network

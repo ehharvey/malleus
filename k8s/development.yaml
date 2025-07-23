@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: malleus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: malleus
+  template:
+    metadata:
+      labels:
+        app: malleus
+    spec:
+      containers:
+        - name: app
+          image: ehharvey/malleus-app
+          ports:
+            - containerPort: 8080

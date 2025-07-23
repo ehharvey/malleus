@@ -6,10 +6,12 @@ package resolver
 
 import (
 	"context"
+	"fmt"
+	"log"
 
-	"github.com/ehharvey/malleus/internal/glue"
 	"github.com/ehharvey/malleus/internal/graph"
 	"github.com/ehharvey/malleus/internal/graph/model"
+	"github.com/ehharvey/malleus/internal/graphqlglue"
 	"github.com/ehharvey/malleus/internal/inventory"
 	"github.com/ehharvey/malleus/internal/outcome"
 )
@@ -19,6 +21,7 @@ func (r *mutationResolver) CreateDomain(ctx context.Context, input model.NewDoma
 	createDomainParams := inventory.CreateDomainParams{
 		Name: input.Name,
 	}
+	log.Println("Received request CreateDomain")
 
 	result := r.InventoryService.CreateDomain(
 		ctx,
@@ -26,12 +29,24 @@ func (r *mutationResolver) CreateDomain(ctx context.Context, input model.NewDoma
 		outcome.ValidationDetailLevel(outcome.ValidationReturnOnlyFailures),
 	)
 
-	// TODO: logging
+	if !result.Succeeded() {
+		// err := fmt.Errorf("CreateDomain failed! %w", result.CombineErrors())
+		// log.Println(err)
+	}
 
-	return glue.ServiceResultToGraphql(result, glue.DomainModelToGraphql)
+	return graphqlglue.ServiceResultToGraphql(result, graphqlglue.DomainModelToGraphql)
+}
+
+// ListDomains is the resolver for the listDomains field.
+func (r *queryResolver) ListDomains(ctx context.Context) ([]*model.Domain, error) {
+	panic(fmt.Errorf("not implemented: ListDomains - listDomains"))
 }
 
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
+// Query returns graph.QueryResolver implementation.
+func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
