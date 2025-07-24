@@ -9,6 +9,7 @@ build:
         dockerfile: Dockerfile
 manifests:
   rawYaml:
-    - k8s/development.yaml
+    - k8s/malleus.yaml
     - k8s/postgresql.yaml
-    - k8s/service.yaml
+    - k8s/grafana.yaml
+    - k8s/loki.yaml

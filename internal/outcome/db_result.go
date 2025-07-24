@@ -12,10 +12,15 @@ func (dr DbResult) Succeeded() bool {
 }
 
 func (dr DbResult) Error() string {
-	if dr.Err == nil {
-		return fmt.Sprintf("no error from QueryFunction: %s", dr.QueryFunction)
-	}
 	return fmt.Sprintf("DbResult error in QueryFunction %s: %v", dr.QueryFunction, dr.Err)
+}
+
+func (dr DbResult) AsError() error {
+	if dr.Err == nil {
+		return dr
+	} else {
+		return nil
+	}
 }
 
 // Allow unwrapping of the underlying error

@@ -14,7 +14,7 @@ func (sr ServiceResult[T]) CombineErrors() error {
 	return errors.Join(
 		sr.ModelValidationResult.CombineErrors(),
 		sr.ServiceValidationResult.CombineErrors(),
-		sr.PersistenceResult,
+		sr.PersistenceResult.AsError(),
 	)
 }
 
